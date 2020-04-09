@@ -17,7 +17,7 @@ def winrm_cmd(cmd):
         endpoint='https://192.168.183.203:5986/wsman',
         transport='basic',
         username=r'user_name',
-        password='password',
+        password='passwd',
         server_cert_validation='ignore')
 
     try:
