@@ -1,0 +1,54 @@
+#left {
+    float: left;
+    width: 100%;
+    display: inline;
+    margin-bottom: 30px;
+}
+#results {
+    float: left;
+    width: 100%;
+    display: inline-block;
+}
+
+
+#results td {
+    border: 1px #BFC9CA solid;
+}
+
+#results th {
+    border-bottom: 1px #34495E solid;
+}
+
+.code {
+    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+    font-size: 10px;
+}
+
+#ipconfig {
+	float: left;
+	width: 359px;
+	padding: 0 0 10px 10px;
+}
+
+
+#targetbox {
+    float: left;
+    width: 450px;
+    height:300px;
+}
+
+.outputboxen {
+    padding: 0;
+    margin: 0;
+}
+
+.red {
+    color: #ba2121;
+}
+
+.greyback {
+    background-color: #f4f4f4;
+}
+
+.fail {padding-left:20px;background:url(../img/icon_error.gif) 16px 0 no-repeat}
+.success {padding-left:20px;background:url(../img/icon_success.gif) 16px 0 no-repeat}

@@ -1,0 +1,190 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% comment %}{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}{% endcomment %}
+{% block extrastyle %}{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}"
+          xmlns:max-width="http://www.w3.org/1999/xhtml">
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/custom.css" %}">
+{{ form.media }}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+
+{#    <script src="http://code.jquery.com/jquery-2.1.4.js"></script>#}
+    <script type="text/javascript" src="{% static "admin/js/spin.js" %}"></script>
+{#    <script type="text/javascript" src="{% static "admin/js/csrf.js" %}"></script>#}
+    <script type="text/javascript">
+
+        function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+}
+
+        function spanner(test_id){
+
+            var opts = {
+             lines: 12, // The number of lines to draw
+             length: 3, // The length of each line
+             width: 2, // The line thickness
+             radius: 4, // The radius of the inner circle
+             color: '#000', // #rbg or #rrggbb
+             speed: 1, // Rounds per second
+             trail: 100, // Afterglow percentage
+             shadow: false // Whether to render a shadow
+            };
+            var target = document.getElementById(test_id);
+            var spinner = new Spinner(opts).spin(target);
+
+            $(test_id).data('spinner', spinner);
+        }
+
+        function windows_callback(data){
+
+            key = "";
+
+            var ipconfig = document.getElementById("ipconfig");
+            ipconfig.classList.add("greyback");
+
+            for (var key in data) {
+
+                if (data.hasOwnProperty(key)) {
+                    var resultdiv = document.getElementById(key);
+
+                    if (data[key]['std_err'] !== "") {
+                        resultdiv.innerText = data[key]['std_err'];
+                        resultdiv.classList.add("red", "code", "outputboxen")
+                    } else {
+                        resultdiv.innerText = data[key]['std_out'];
+                        resultdiv.classList.add("code", "outputboxen");
+                    }
+                }
+            }
+        }
+
+        function windows() {
+
+            spanner("ipconfig");
+            var csrftoken = getCookie('csrftoken');
+
+            $.ajax({
+                url: "/ccv/", // the endpoint
+                type: "POST", // http method
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                data: {},
+
+                success: function (json) {
+                    windows_callback(json);
+                },
+
+                // handle a non-successful response
+                error: function (xhr, errmsg, err){
+
+                    $('#error').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                        " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            });
+        }
+
+{% comment %}        function run_tests(){
+
+            var testlist = ["ipconfig", "lastlogins"];
+            var j;
+            for (j of testlist){
+                console.log(j);
+                windows(j)
+            }
+        }{% endcomment %}
+
+    </script>
+
+{% endblock extrahead %}
+
+{% block content %}
+<div id="content-main">
+
+<div id="windows">
+    <div class="float-left" style="width:100%">
+    <div id="left" style="float: left; margin-bottom: 30px">
+        <form id="windows-form">
+
+        <div class="submit-row">
+        <label style="margin-right: 30px">Windows concept demo</label><input type="button" value="check" onclick="windows()">
+        </div>
+        </form>
+    </div> <!-- end left div -->
+    <div id="test" class="float-left"></div>
+    </div>
+
+    <div style="clear: both"></div>
+
+    <div id="targetbox">
+        <div style="float: left;width:80px;padding-top:100px">Target</div>
+        <div id="ipconfig" class="code"></div>
+    </div>
+
+    <div id="results" style="float: left">
+        <table>
+            <tr>
+            <th>DSS req</th><th style="width: 350px">Description</th><th>Pass/fail</th><th>Output</th>
+            </tr>
+            <tr>
+                <td>8.1.4</td>
+                <td>Test for inactive accounts</td>
+                <td><div class="fail">&nbsp;</div></td>
+                <td><div id="lastlogins"></div></td>
+            </tr>
+            <tr>
+                <td>8.2.4</td>
+                <td>Is password expiration set to at least 90 days?<p></p>
+                    <span class="code">Get-ItemProperty -Path <br>HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\<br>Parameters -Name MaximumPasswordAge</span>
+                </td>
+                <td><div class="fail">&nbsp;</div></td>
+                <td><div id="password_age"></div></td>
+            </tr>
+            <tr>
+                <td>10.4</td>
+                <td>Is time synchronised to an NTP server?</td>
+                <td><div class="success">&nbsp;</div></td>
+                <td><div id="ntp"></div></td>
+            </tr>
+            <tr>
+                <td>8.2.1a</td>
+                <td>Are passwords strongly encrypted in transit?<p></p>
+                    <span class="code">Get-ItemProperty -Path <br>hklm:\System\CurrentControlSet\Control\<br>Lsa -Name LmCompatibilityLevel</span>
+                    <p></p>
+                <p><i>[If the key isn't found, it means probably GPO wasn't configured from AD, and the default will be NTLMv2.
+                    NTLMv2 uses a cipher which is outdated as per FIPS 140-2]</i></p>
+                </td>
+
+                <td><div class="fail">&nbsp;</div></td>
+                <td><div id="lmcompat"></div></td>
+            </tr>
+        </table>
+    </div>
+
+</div> <!-- end windows div -->
+</div> <!-- end div content-main -->
+
+{% endblock %}
