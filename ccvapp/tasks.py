@@ -16,8 +16,8 @@ def winrm_cmd(cmd):
     p = Protocol(
         endpoint='https://192.168.183.203:5986/wsman',
         transport='basic',
-        username=r'Administrator',
-        password='your_password',
+        username=r'user_name',
+        password='password',
         server_cert_validation='ignore')
 
     try:
