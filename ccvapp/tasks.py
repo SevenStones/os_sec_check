@@ -1,9 +1,6 @@
 from winrm.protocol import Protocol
 from celery import Celery, task, shared_task
 
-#
-# s = winrm.Session('192.168.183.156', auth=('Administrator', 'Octl!9!2'), transport='basic')
-# t = s.run_cmd('ipconfig', ['/all'])
 
 @shared_task()
 def winrm_cmd(cmd):
